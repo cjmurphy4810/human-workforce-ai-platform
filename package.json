@@ -1,0 +1,18 @@
+{
+  "name": "human-workforce-ai-platform",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "dashboard"
+  ],
+  "scripts": {
+    "dashboard:dev": "npm run dev --workspace=dashboard",
+    "dashboard:build": "npm run build --workspace=dashboard",
+    "dashboard:lint": "npm run lint --workspace=dashboard",
+    "dashboard:type-check": "npm run type-check --workspace=dashboard"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "charliermarsh.ruff",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "GitHub.vscode-pull-request-github",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-sqlite"
+  ]
+}

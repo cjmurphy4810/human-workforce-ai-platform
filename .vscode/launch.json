@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "FastAPI — Dev Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"],
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "Pytest — All Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["-v", "--no-header"],
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "Pytest — Unit Only",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["tests/unit/", "-v"],
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    }
+  ]
+}
