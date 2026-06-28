@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from config.loader import OutputConfig, ScoringWeights
+from config.loader import OutputConfig
 from models.article import Article, ArticleScore, ScoredArticle
 from pipeline.brief_builder import build_brief
 
 
-def _scored(title: str, overall: float = 0.5, consulting: float = 0.3, podcast: float = 0.2) -> ScoredArticle:
+def _scored(
+    title: str, overall: float = 0.5, consulting: float = 0.3, podcast: float = 0.2
+) -> ScoredArticle:
     return ScoredArticle(
         article=Article(
             title=title,
             url=f"https://example.com/{title.replace(' ', '-')}",
             source_name="Test Source",
-            published_at=datetime.now(timezone.utc),
+            published_at=datetime.now(UTC),
             summary=f"Summary of {title}.",
         ),
         score=ArticleScore(
@@ -28,7 +30,7 @@ def _scored(title: str, overall: float = 0.5, consulting: float = 0.3, podcast: 
 
 
 def _cfg(**kwargs: int) -> OutputConfig:
-    defaults = dict(top_stories=10, top_consulting=5, top_podcast=5, lookback_days=7)
+    defaults = {"top_stories": 10, "top_consulting": 5, "top_podcast": 5, "lookback_days": 7}
     defaults.update(kwargs)
     return OutputConfig(**defaults)
 
@@ -53,6 +55,7 @@ def test_top_stories_capped_at_config_limit() -> None:
     md = build_brief(articles, _cfg(top_stories=3))
     # Count "### 1.", "### 2.", "### 3.", "### 4." to verify only 3 appear in stories section
     import re
+
     story_headers = re.findall(r"^### \d+\.", md, re.MULTILINE)
     # At most top_stories + top_consulting + top_podcast headers
     # Just verify we can't have more than 3+5+5=13 numbered entries total with defaults capped

@@ -3,11 +3,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from config.loader import ScoringWeights, load_config
 from pydantic import ValidationError
 
-from config.loader import AppConfig, ScoringWeights, load_config
-
-_CONFIG_YAML = Path(__file__).parent.parent.parent.parent / "agent1-research" / "config" / "config.yaml"
+_CONFIG_YAML = (
+    Path(__file__).parent.parent.parent.parent / "agent1-research" / "config" / "config.yaml"
+)
 
 
 def test_load_bundled_config() -> None:

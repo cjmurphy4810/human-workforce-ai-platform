@@ -3,12 +3,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-from typing import Optional
 
 import feedparser
-
 from config.loader import SourceConfig
 from models.article import Article
 
@@ -27,20 +25,20 @@ def _parse_date(entry: feedparser.FeedParserDict) -> datetime:
         t = getattr(entry, attr, None)
         if t:
             try:
-                return datetime(*t[:6], tzinfo=timezone.utc)
+                return datetime(*t[:6], tzinfo=UTC)
             except Exception:
                 pass
     for attr in ("published", "updated"):
         raw = getattr(entry, attr, None)
         if raw:
             try:
-                return parsedate_to_datetime(raw).astimezone(timezone.utc)
+                return parsedate_to_datetime(raw).astimezone(UTC)
             except Exception:
                 pass
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
-def _entry_to_article(entry: feedparser.FeedParserDict, source: SourceConfig) -> Optional[Article]:
+def _entry_to_article(entry: feedparser.FeedParserDict, source: SourceConfig) -> Article | None:
     title = _strip_html(getattr(entry, "title", "")).strip()
     url = getattr(entry, "link", "").strip()
     if not title or not url:
@@ -78,16 +76,40 @@ async def fetch_source(source: SourceConfig) -> list[Article]:
     return articles
 
 
-async def fetch_feeds(sources: list[SourceConfig]) -> list[Article]:
+class FetchResult:
+    __slots__ = ("articles", "sources_succeeded", "source_errors")
+
+    def __init__(
+        self,
+        articles: list[Article],
+        sources_succeeded: int,
+        source_errors: list[tuple[str, str]],
+    ) -> None:
+        self.articles = articles
+        self.sources_succeeded = sources_succeeded
+        self.source_errors = source_errors  # [(source_name, error_msg), ...]
+
+
+async def fetch_feeds(sources: list[SourceConfig]) -> FetchResult:
     tasks = [fetch_source(s) for s in sources]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
     articles: list[Article] = []
-    for source, result in zip(sources, results):
+    source_errors: list[tuple[str, str]] = []
+    succeeded = 0
+
+    for source, result in zip(sources, results, strict=False):
         if isinstance(result, Exception):
-            logger.warning("fetch failed: source=%s error=%s", source.name, result)
+            msg = str(result)
+            logger.warning("fetch failed: source=%s error=%s", source.name, msg)
+            source_errors.append((source.name, msg))
         else:
             logger.info("fetched: source=%s count=%d", source.name, len(result))
             articles.extend(result)
+            succeeded += 1
 
-    return articles
+    return FetchResult(
+        articles=articles,
+        sources_succeeded=succeeded,
+        source_errors=source_errors,
+    )

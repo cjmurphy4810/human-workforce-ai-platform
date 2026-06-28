@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from config.loader import ScoringWeights
 from models.article import Article
@@ -12,7 +12,7 @@ def _make(title: str = "", summary: str = "") -> Article:
         title=title,
         url="https://example.com/a",
         source_name="Test",
-        published_at=datetime.now(timezone.utc),
+        published_at=datetime.now(UTC),
         summary=summary,
     )
 

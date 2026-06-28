@@ -27,9 +27,14 @@ setup-dev: $(VENV_BIN)/activate ## Install all dependencies including dev tools
 	$(VENV_PIP) install -e ".[dev]"
 	$(VENV_PY) -m pre_commit install
 
-# ── Development Server ────────────────────────────────────────────────────────
-dev: ## Start FastAPI development server with hot-reload
-	$(VENV_BIN)/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+# ── Development Servers ───────────────────────────────────────────────────────
+dev: ## Start Human Workforce AI API with hot-reload (port 8000)
+	$(VENV_BIN)/uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+
+api: dev ## Alias for dev
+
+research: ## Run Agent 1 research pipeline once
+	cd agent1-research && $(VENV_PY) main.py
 
 # ── Testing ───────────────────────────────────────────────────────────────────
 test: ## Run full test suite with coverage

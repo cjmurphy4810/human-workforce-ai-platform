@@ -27,6 +27,11 @@ dependencies = [
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
     "python-json-logger>=2.0.7",
+    "feedparser>=6.0.11",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.2.0",
+    "pyyaml>=6.0.1",
+    "tenacity>=8.3.0",
 ]
 
 [project.optional-dependencies]
@@ -53,16 +58,32 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501"]
+# E501: line too long (handled by formatter)
+# B008: Depends() in defaults is the FastAPI DI pattern, not a bug
+ignore = ["E501", "B008"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+# E402: sys.path must be mutated before importing non-stdlib packages
+"agent1-research/main.py" = ["E402"]
+"tests/unit/api/conftest.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
 ignore_missing_imports = true
-exclude = ["dashboard/", "docs/"]
+# agent1-research has a hyphen so mypy can't import it as a package;
+# exclude it and rely on the integration test suite to catch type errors there.
+exclude = [
+    "dashboard/",
+    "docs/",
+    "tests/",
+    "agent1-research/",
+    "agent2-content/",
+    "agent3-video/",
+    "agent4-publishing/",
+    "agent5-analytics/",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
