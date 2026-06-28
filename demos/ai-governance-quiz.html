@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Governance Knowledge Quiz</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+      background: #f8f9fa;
+      color: #202124;
+      min-height: 100vh;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e8eaed;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #202124;
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 500;
+      background: #e8f0fe; color: #1a73e8;
+      border-radius: 4px; padding: 3px 8px;
+    }
+    .tag svg { width: 13px; height: 13px; }
+    .sources-link {
+      font-size: 13px; color: #1a73e8;
+      text-decoration: none; cursor: pointer;
+    }
+    .sources-link:hover { text-decoration: underline; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      background: none; border: none; cursor: pointer;
+      color: #5f6368; padding: 6px; border-radius: 50%;
+      display: flex; align-items: center;
+      transition: background 0.15s;
+    }
+    .icon-btn:hover { background: #f1f3f4; }
+    .icon-btn svg { width: 20px; height: 20px; }
+    .copy-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 500; color: #1a73e8;
+      background: none; border: none; cursor: pointer;
+      padding: 6px 10px; border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .copy-btn:hover { background: #e8f0fe; }
+
+    /* ── Main content ── */
+    .main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Progress ── */
+    .progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .progress-counter { font-size: 14px; color: #5f6368; }
+    .progress-edit {
+      background: none; border: none; cursor: pointer;
+      color: #5f6368; padding: 4px;
+      border-radius: 50%; display: flex;
+      transition: background 0.15s;
+    }
+    .progress-edit:hover { background: #f1f3f4; }
+    .progress-edit svg { width: 18px; height: 18px; }
+    .progress-bar-wrap {
+      height: 4px; background: #e8eaed; border-radius: 2px;
+      margin-bottom: 28px;
+    }
+    .progress-bar-fill {
+      height: 100%; background: #1a73e8; border-radius: 2px;
+      transition: width 0.35s ease;
+    }
+
+    /* ── Question ── */
+    .question-text {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      color: #202124;
+    }
+
+    /* ── Options ── */
+    .options { display: flex; flex-direction: column; gap: 10px; }
+
+    .option {
+      border: 1.5px solid #dadce0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+    .option:hover:not(.revealed) { border-color: #1a73e8; background: #f8f9ff; }
+
+    .option-label {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; line-height: 1.5; color: #202124;
+    }
+    .option-letter {
+      font-weight: 500; min-width: 16px;
+      color: #5f6368; padding-top: 1px;
+    }
+
+    /* Revealed states */
+    .option.correct {
+      background: #e6f4ea;
+      border-color: #34a853;
+    }
+    .option.selected-wrong {
+      background: #fce8e6;
+      border-color: #ea4335;
+    }
+    .option.revealed { cursor: default; }
+
+    .verdict {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 500;
+      margin: 8px 0 4px 26px;
+    }
+    .verdict.right { color: #137333; }
+    .verdict.wrong  { color: #c5221f; }
+    .verdict svg { width: 15px; height: 15px; }
+
+    .explanation {
+      font-size: 13px; color: #3c4043; line-height: 1.5;
+      margin-left: 26px;
+    }
+
+    /* ── Buttons ── */
+    .actions { margin-top: 28px; }
+    .btn-next {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 28px;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-next:hover { background: #1765cc; }
+    .btn-next:disabled { background: #c5c6c7; cursor: default; }
+
+    /* ── Score screen ── */
+    .score-screen {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .score-circle {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      border: 6px solid #1a73e8;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .score-num { font-size: 36px; font-weight: 700; color: #1a73e8; line-height: 1; }
+    .score-denom { font-size: 14px; color: #5f6368; margin-top: 2px; }
+    .score-title { font-size: 22px; font-weight: 500; margin-bottom: 8px; }
+    .score-subtitle { font-size: 14px; color: #5f6368; margin-bottom: 32px; }
+    .score-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-outline {
+      border: 1.5px solid #dadce0;
+      background: #fff; color: #1a73e8;
+      border-radius: 24px;
+      padding: 10px 24px;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-outline:hover { background: #f8f9ff; border-color: #1a73e8; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #80868b;
+      padding: 20px 24px;
+      border-top: 1px solid #e8eaed;
+      margin-top: 40px;
+    }
+    .footer a { color: #1a73e8; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 500px) {
+      .topbar-title { font-size: 15px; }
+      .main { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">AI Governance Knowledge Quiz</div>
+    <span class="tag">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Quiz
+    </span>
+    <a class="sources-link" href="#" onclick="return false;">View prompt and 5 sources</a>
+  </div>
+  <div class="topbar-right">
+    <button class="copy-btn" onclick="copyLink()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Copy link
+    </button>
+    <button class="icon-btn" title="Helpful">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+    </button>
+    <button class="icon-btn" title="Not helpful">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+    </button>
+    <button class="icon-btn" title="Flag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main" id="quizMain">
+  <!-- Rendered by JS -->
+</div>
+
+<div class="footer">
+  Generated by AI based on user-provided sources and instructions &nbsp;·&nbsp;
+  <a href="#">Terms of Service</a> &nbsp;|&nbsp;
+  <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="#">Learn more</a>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "What is the primary danger of 'polished fiction' in an organizational context?",
+    options: [
+      {
+        text: "The AI may use overly complex language that humans cannot understand.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "The problem is not lack of clarity, but rather the deceptive nature of the output's professional tone."
+      },
+      {
+        text: "The output is usually too brief to be useful for decision-making.",
+        correct: false,
+        verdict: null,
+        explanation: "Fiction can be quite detailed; the danger lies in its indistinguishability from real expertise."
+      },
+      {
+        text: "The output sounds like expertise but lacks actual validity or truth.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "This concept describes output that mimics expert quality so effectively that users trust it before it has earned that trust."
+      },
+      {
+        text: "The AI might fail to generate any output when faced with difficult prompts.",
+        correct: false,
+        verdict: null,
+        explanation: "Polished fiction refers to content that is successfully generated but is fundamentally unreliable."
+      }
+    ]
+  },
+  {
+    q: "Which of the following best describes 'model hallucination' in AI systems?",
+    options: [
+      {
+        text: "When the AI system overheats due to excessive computation loads.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Hallucination is a behavioral output problem, not a hardware or performance issue."
+      },
+      {
+        text: "When the AI generates confident-sounding but factually incorrect information.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Hallucination refers to the model producing plausible-seeming content that is factually wrong, often with high expressed confidence."
+      },
+      {
+        text: "When the model is unable to process certain types of input data.",
+        correct: false,
+        verdict: null,
+        explanation: "An inability to process input is a capability or format limitation, not hallucination."
+      },
+      {
+        text: "When the model takes significantly longer than expected to generate a response.",
+        correct: false,
+        verdict: null,
+        explanation: "Response latency is a performance issue distinct from hallucination."
+      }
+    ]
+  },
+  {
+    q: "What is the primary purpose of AI red-teaming in an organizational context?",
+    options: [
+      {
+        text: "To train the AI model on adversarial examples to improve benchmark performance.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Red-teaming focuses on discovery of weaknesses, not on improving benchmark scores through adversarial training."
+      },
+      {
+        text: "To create a separate AI team focused on competitive intelligence gathering.",
+        correct: false,
+        verdict: null,
+        explanation: "The term 'red team' here refers to adversarial testing, not competitive strategy."
+      },
+      {
+        text: "To evaluate the computational efficiency and cost of AI systems at scale.",
+        correct: false,
+        verdict: null,
+        explanation: "Cost and efficiency analysis is a separate governance concern from red-teaming."
+      },
+      {
+        text: "To deliberately probe an AI system for flaws, biases, and harmful failure modes.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Red-teaming involves structured adversarial attempts to surface risks before they manifest in production, including safety violations, bias, and misuse vectors."
+      }
+    ]
+  },
+  {
+    q: "In AI governance, what does 'human-in-the-loop' primarily mean?",
+    options: [
+      {
+        text: "Requiring all AI systems to be coded and maintained by human developers only.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "This concept is about decision oversight, not about who writes the code."
+      },
+      {
+        text: "Ensuring human review and approval for consequential AI-assisted decisions.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Human-in-the-loop governance ensures that humans retain meaningful oversight and the ability to intervene before high-stakes decisions take effect."
+      },
+      {
+        text: "Using human feedback exclusively to train AI models during development.",
+        correct: false,
+        verdict: null,
+        explanation: "HITL as a governance principle extends beyond training; it applies to deployment and ongoing operation."
+      },
+      {
+        text: "A legal requirement to hire human employees alongside every AI deployment.",
+        correct: false,
+        verdict: null,
+        explanation: "While workforce implications of AI are important, HITL is a governance design pattern, not a hiring mandate."
+      }
+    ]
+  },
+  {
+    q: "What is 'algorithmic bias' in the context of AI governance?",
+    options: [
+      {
+        text: "The tendency of AI systems to prioritize computation speed over prediction accuracy.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "This describes a performance trade-off, not algorithmic bias."
+      },
+      {
+        text: "The natural preference that AI developers have for certain model architectures.",
+        correct: false,
+        verdict: null,
+        explanation: "Developer preferences are part of system design choices, separate from the bias that emerges in model outputs."
+      },
+      {
+        text: "Systematic errors in AI outputs that produce unfair or discriminatory outcomes for certain groups.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Algorithmic bias occurs when an AI system's outputs reflect and amplify historical or structural inequities, often due to biased training data or flawed objective functions."
+      },
+      {
+        text: "The inclination of AI models to produce overly optimistic probability estimates.",
+        correct: false,
+        verdict: null,
+        explanation: "Overconfident probability estimates are a calibration issue, which overlaps with but is distinct from bias toward particular demographic groups."
+      }
+    ]
+  },
+  {
+    q: "Which principle is central to 'explainable AI' (XAI)?",
+    options: [
+      {
+        text: "AI systems should summarize every decision in five words or fewer.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Explainability is about meaningful transparency, not arbitrary brevity."
+      },
+      {
+        text: "AI decision-making processes must be understandable and auditable by humans.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "XAI prioritizes transparency so that stakeholders can understand why an AI reached a conclusion, enabling accountability, debugging, and trust calibration."
+      },
+      {
+        text: "AI systems should generate explanations only when legally mandated to do so.",
+        correct: false,
+        verdict: null,
+        explanation: "Best-practice governance treats explainability as a proactive design requirement, not a reactive legal response."
+      },
+      {
+        text: "AI explanations must always be validated by a separate AI system before release.",
+        correct: false,
+        verdict: null,
+        explanation: "While automated evaluation can help, XAI is fundamentally about human comprehension, not AI-to-AI verification."
+      }
+    ]
+  },
+  {
+    q: "What risk does 'automation bias' introduce in organizational AI deployments?",
+    options: [
+      {
+        text: "AI systems slow down over time when too many workflows are fully automated.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Automation bias is a human behavioral risk, not a system performance degradation issue."
+      },
+      {
+        text: "Employees over-rely on AI outputs and reduce critical human judgment and oversight.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Automation bias causes people to accept AI recommendations uncritically, even when the system is wrong, undermining the human-in-the-loop safeguards that governance frameworks depend on."
+      },
+      {
+        text: "AI models develop a preference for repetitive tasks over open-ended creative ones.",
+        correct: false,
+        verdict: null,
+        explanation: "Models do not develop behavioral preferences; this describes a human perception of AI limitations."
+      },
+      {
+        text: "Fully automated AI workflows consistently cost more than human-operated alternatives.",
+        correct: false,
+        verdict: null,
+        explanation: "Cost dynamics vary widely; automation bias is specifically about uncritical human deference to AI outputs."
+      }
+    ]
+  },
+  {
+    q: "What is a 'foundation model' in the context of modern AI governance?",
+    options: [
+      {
+        text: "The earliest AI model ever created, which all later models are architecturally derived from.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Foundation models are a contemporary category defined by scale and generality, not historical primacy."
+      },
+      {
+        text: "A model specifically designed to evaluate the quality and safety of other AI models.",
+        correct: false,
+        verdict: null,
+        explanation: "Such evaluator models exist, but 'foundation model' refers to the large pre-trained base, not its evaluative function."
+      },
+      {
+        text: "A large-scale pre-trained model that serves as a base for many downstream applications.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Foundation models (e.g., large language models) are trained on broad data at scale and fine-tuned for specific tasks. Their concentration of capability in few systems raises unique governance concerns around access, misuse, and single points of failure."
+      },
+      {
+        text: "The AI model used to establish the legal and regulatory framework for AI standards.",
+        correct: false,
+        verdict: null,
+        explanation: "Legal frameworks are authored by humans through policy processes, not derived from a specific AI model."
+      }
+    ]
+  },
+  {
+    q: "What does 'prompt injection' refer to in AI security?",
+    options: [
+      {
+        text: "Inserting physical instructions into AI hardware to boost processing performance.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "Prompt injection is a software-level attack on language model inputs, not a hardware modification."
+      },
+      {
+        text: "The process of systematically optimizing prompt wording to improve AI accuracy.",
+        correct: false,
+        verdict: null,
+        explanation: "That describes prompt engineering or optimization — a legitimate practice distinct from the security threat of injection."
+      },
+      {
+        text: "Adding new training examples to an existing AI model through an API endpoint.",
+        correct: false,
+        verdict: null,
+        explanation: "Updating model weights via API describes fine-tuning or continual learning, not prompt injection."
+      },
+      {
+        text: "Malicious inputs designed to override an AI system's intended instructions or safety controls.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Prompt injection attacks embed adversarial instructions in user-controlled input to hijack the model's behavior — a critical security risk for AI systems that process untrusted content."
+      }
+    ]
+  },
+  {
+    q: "Which best describes the 'dual-use' challenge in AI governance?",
+    options: [
+      {
+        text: "The requirement to develop AI systems for both commercial and government defense use.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "While procurement overlaps exist, the dual-use challenge is fundamentally about the same capability enabling both benefit and harm."
+      },
+      {
+        text: "AI capabilities built for beneficial purposes can also be repurposed to cause significant harm.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "The same model that assists researchers can accelerate the creation of disinformation or biological threats. Governance frameworks must account for this inherent duality when setting access, licensing, and monitoring policies."
+      },
+      {
+        text: "AI systems must support both text-based and image-based inputs simultaneously.",
+        correct: false,
+        verdict: null,
+        explanation: "Multimodal capability is an architectural feature, not the governance concept of dual-use."
+      },
+      {
+        text: "The challenge of licensing a single AI product for use across two different regulatory jurisdictions.",
+        correct: false,
+        verdict: null,
+        explanation: "Cross-border licensing is a compliance challenge; dual-use refers to the risk of beneficial tools being weaponized."
+      }
+    ]
+  },
+  {
+    q: "What is 'shadow AI' in an organizational context?",
+    options: [
+      {
+        text: "AI systems that operate autonomously without consuming any measurable computational resources.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "All AI inference consumes resources; 'shadow' describes governance visibility, not resource usage."
+      },
+      {
+        text: "Unofficial or unsanctioned use of AI tools by employees outside IT and governance oversight.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "Shadow AI mirrors 'shadow IT' — employees adopt consumer AI tools without security review, creating risks around data leakage, compliance violations, and ungoverned decision support."
+      },
+      {
+        text: "AI specifically designed to operate in environments with limited lighting or sensor conditions.",
+        correct: false,
+        verdict: null,
+        explanation: "This describes an edge-case deployment environment, not an organizational governance risk category."
+      },
+      {
+        text: "AI models trained exclusively on data sourced from the dark web.",
+        correct: false,
+        verdict: null,
+        explanation: "Training data provenance is a data governance issue, separate from the phenomenon of unauthorized AI tool adoption."
+      }
+    ]
+  },
+  {
+    q: "What is the primary goal of an organizational 'AI acceptable use policy' (AUP)?",
+    options: [
+      {
+        text: "To ensure that only senior leadership is authorized to use AI tools within the organization.",
+        correct: false,
+        verdict: "Not quite",
+        explanation: "AUPs govern responsible use across all employees, not exclusive access for leadership."
+      },
+      {
+        text: "To restrict all AI usage to tasks that have been pre-approved by external regulators.",
+        correct: false,
+        verdict: null,
+        explanation: "While regulatory alignment is important, AUPs are internally authored policies that address a broader scope than just regulatory pre-approval."
+      },
+      {
+        text: "To prevent employees from using free AI tools and direct them to paid enterprise alternatives.",
+        correct: false,
+        verdict: null,
+        explanation: "Cost model preference is occasionally addressed in AUPs, but it is not their primary governance purpose."
+      },
+      {
+        text: "To define how AI tools may be appropriately and responsibly used across the organization.",
+        correct: true,
+        verdict: "Right answer",
+        explanation: "An AI AUP establishes permitted use cases, data handling requirements, disclosure obligations, and accountability structures — the foundation for safe and consistent AI adoption at scale."
+      }
+    ]
+  }
+];
+
+let current = 0;
+let selected = null;
+let score = 0;
+let answered = new Array(QUESTIONS.length).fill(null);
+
+function render() {
+  const main = document.getElementById('quizMain');
+
+  if (current >= QUESTIONS.length) {
+    renderScore(main);
+    return;
+  }
+
+  const q = QUESTIONS[current];
+  const isAnswered = answered[current] !== null;
+  const pct = Math.round(((current) / QUESTIONS.length) * 100);
+
+  main.innerHTML = `
+    <div class="progress-row">
+      <span class="progress-counter">${current + 1} / ${QUESTIONS.length}</span>
+      <button class="progress-edit" title="Edit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:${pct}%"></div>
+    </div>
+
+    <div class="question-text">${q.q}</div>
+
+    <div class="options" id="options">
+      ${q.options.map((opt, i) => renderOption(opt, i, isAnswered)).join('')}
+    </div>
+
+    <div class="actions">
+      <button class="btn-next" ${isAnswered ? '' : 'disabled'} onclick="nextQuestion()">
+        ${current < QUESTIONS.length - 1 ? 'Next' : 'Finish'}
+      </button>
+    </div>
+  `;
+
+  if (!isAnswered) {
+    main.querySelectorAll('.option').forEach((el, i) => {
+      el.addEventListener('click', () => selectOption(i));
+    });
+  }
+}
+
+function renderOption(opt, i, revealed) {
+  const letters = ['A', 'B', 'C', 'D'];
+  let cls = 'option';
+  if (revealed) {
+    cls += ' revealed';
+    if (opt.correct) cls += ' correct';
+    else if (answered[current] === i) cls += ' selected-wrong';
+  }
+
+  let verdictHtml = '';
+  if (revealed) {
+    if (opt.correct) {
+      verdictHtml = `<div class="verdict right">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Right answer
+      </div>`;
+    } else if (answered[current] === i) {
+      verdictHtml = `<div class="verdict wrong">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Not quite
+      </div>`;
+    }
+  }
+
+  const expHtml = revealed
+    ? `<div class="explanation">${opt.explanation}</div>`
+    : '';
+
+  return `
+    <div class="${cls}">
+      <div class="option-label">
+        <span class="option-letter">${letters[i]}.</span>
+        <span>${opt.text}</span>
+      </div>
+      ${verdictHtml}
+      ${expHtml}
+    </div>
+  `;
+}
+
+function selectOption(i) {
+  if (answered[current] !== null) return;
+  answered[current] = i;
+  if (QUESTIONS[current].options[i].correct) score++;
+  render();
+}
+
+function nextQuestion() {
+  current++;
+  render();
+}
+
+function renderScore(main) {
+  const grade = score >= 10 ? 'Excellent' : score >= 7 ? 'Good work' : score >= 5 ? 'Keep learning' : 'Keep practicing';
+  const sub = score >= 10
+    ? 'You demonstrate strong command of AI governance principles.'
+    : score >= 7
+    ? 'Solid understanding with a few areas to revisit.'
+    : 'Review the explanations to deepen your knowledge.';
+
+  main.innerHTML = `
+    <div class="score-screen">
+      <div class="score-circle">
+        <div class="score-num">${score}</div>
+        <div class="score-denom">out of ${QUESTIONS.length}</div>
+      </div>
+      <div class="score-title">${grade}</div>
+      <div class="score-subtitle">${sub}</div>
+      <div class="score-actions">
+        <button class="btn-outline" onclick="reviewQuiz()">Review answers</button>
+        <button class="btn-next" onclick="restartQuiz()">Retake quiz</button>
+      </div>
+    </div>
+  `;
+}
+
+function reviewQuiz() {
+  current = 0;
+  // Force all questions into "answered" state for review (show results without re-answering)
+  // Keep the existing answered array — just re-render from question 0
+  render();
+}
+
+function restartQuiz() {
+  current = 0;
+  score = 0;
+  answered = new Array(QUESTIONS.length).fill(null);
+  render();
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).catch(() => {});
+}
+
+// Boot
+render();
+</script>
+</body>
+</html>
