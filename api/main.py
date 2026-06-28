@@ -26,6 +26,11 @@ _AGENT1_DIR = Path(__file__).parent.parent / "agent1-research"
 if str(_AGENT1_DIR) not in sys.path:
     sys.path.insert(0, str(_AGENT1_DIR))
 
+# Make intelligence-engine packages importable.
+_INTELLIGENCE_DIR = Path(__file__).parent.parent / "intelligence-engine"
+if str(_INTELLIGENCE_DIR) not in sys.path:
+    sys.path.insert(0, str(_INTELLIGENCE_DIR))
+
 from config.loader import load_config  # noqa: E402
 from storage.database import build_engine, build_session_factory, init_db  # noqa: E402
 
@@ -126,6 +131,7 @@ def _register_routers(application: FastAPI) -> None:
         articles,
         brief,
         health,
+        intelligence,
         pipeline,
         sources,
         stats,
@@ -139,6 +145,7 @@ def _register_routers(application: FastAPI) -> None:
     application.include_router(articles.router)
     application.include_router(topics.router)
     application.include_router(sources.router)
+    application.include_router(intelligence.router)
 
 
 # Module-level app used by uvicorn

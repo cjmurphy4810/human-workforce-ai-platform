@@ -67,6 +67,7 @@ ignore = ["E501", "B008"]
 # E402: sys.path must be mutated before importing non-stdlib packages
 "agent1-research/main.py" = ["E402"]
 "tests/unit/api/conftest.py" = ["E402"]
+"tests/unit/intelligence/conftest.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -83,6 +84,7 @@ exclude = [
     "agent3-video/",
     "agent4-publishing/",
     "agent5-analytics/",
+    "intelligence-engine/",
 ]
 
 [tool.pytest.ini_options]
