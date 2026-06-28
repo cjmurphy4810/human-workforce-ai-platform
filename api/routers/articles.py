@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
@@ -10,8 +10,11 @@ from api.models.responses import ArticleListResponse, ArticleResponse, ArticleSc
 router = APIRouter(tags=["Articles"])
 
 _VALID_DIMENSIONS = {
-    "business_impact", "executive_interest",
-    "consulting_opportunity", "podcast_potential", "urgency",
+    "business_impact",
+    "executive_interest",
+    "consulting_opportunity",
+    "podcast_potential",
+    "urgency",
 }
 
 
@@ -48,22 +51,35 @@ def _to_article_response(sa) -> ArticleResponse:  # type: ignore[type-arg]
 )
 async def list_articles(
     repo=Depends(get_repo),
-    date: Annotated[Optional[str], Query(
-        description="Filter by published date (YYYY-MM-DD)",
-        example="2026-06-28",
-    )] = None,
-    source: Annotated[Optional[str], Query(
-        description="Filter by source name (partial match)",
-        example="TechCrunch",
-    )] = None,
-    min_score: Annotated[float, Query(
-        ge=0.0, le=1.0,
-        description="Minimum overall score",
-    )] = 0.0,
-    topic: Annotated[Optional[str], Query(
-        description="Sort by scoring dimension: business_impact, executive_interest, "
-                    "consulting_opportunity, podcast_potential, urgency",
-    )] = None,
+    date: Annotated[
+        str | None,
+        Query(
+            description="Filter by published date (YYYY-MM-DD)",
+            example="2026-06-28",
+        ),
+    ] = None,
+    source: Annotated[
+        str | None,
+        Query(
+            description="Filter by source name (partial match)",
+            example="TechCrunch",
+        ),
+    ] = None,
+    min_score: Annotated[
+        float,
+        Query(
+            ge=0.0,
+            le=1.0,
+            description="Minimum overall score",
+        ),
+    ] = 0.0,
+    topic: Annotated[
+        str | None,
+        Query(
+            description="Sort by scoring dimension: business_impact, executive_interest, "
+            "consulting_opportunity, podcast_potential, urgency",
+        ),
+    ] = None,
     limit: Annotated[int, Query(ge=1, le=200, description="Max results")] = 50,
     offset: Annotated[int, Query(ge=0, description="Pagination offset")] = 0,
 ) -> ArticleListResponse:

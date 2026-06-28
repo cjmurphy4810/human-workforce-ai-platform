@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from models.article import Article
 from pipeline.deduplicator import compute_hash, filter_new, stamp_hashes
@@ -11,7 +11,7 @@ def _article(title: str = "Title", url: str = "https://example.com/a") -> Articl
         title=title,
         url=url,
         source_name="Test",
-        published_at=datetime.now(timezone.utc),
+        published_at=datetime.now(UTC),
     )
 
 
@@ -69,10 +69,7 @@ def test_filter_new_removes_within_batch_duplicates() -> None:
 
 
 def test_filter_new_preserves_order() -> None:
-    articles = [
-        _article(title=f"Article {i}", url=f"https://example.com/{i}")
-        for i in range(5)
-    ]
+    articles = [_article(title=f"Article {i}", url=f"https://example.com/{i}") for i in range(5)]
     stamp_hashes(articles)
     result = filter_new(articles, existing_hashes=set())
     assert [a.title for a in result] == [a.title for a in articles]

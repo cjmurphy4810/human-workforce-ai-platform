@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from httpx import AsyncClient
-
 from pipeline.orchestrator import RunResult
 
 
@@ -21,7 +19,7 @@ def _make_run_result(brief_path: str = "/tmp/brief.md") -> RunResult:
         save_errors=[],
         brief_path=brief_path,
         duration_seconds=3.14,
-        timestamp=datetime(2026, 6, 28, 12, 0, tzinfo=timezone.utc),
+        timestamp=datetime(2026, 6, 28, 12, 0, tzinfo=UTC),
     )
 
 

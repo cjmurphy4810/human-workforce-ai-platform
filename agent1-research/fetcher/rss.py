@@ -3,12 +3,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
-from typing import Optional
 
 import feedparser
-
 from config.loader import SourceConfig
 from models.article import Article
 
@@ -27,20 +25,20 @@ def _parse_date(entry: feedparser.FeedParserDict) -> datetime:
         t = getattr(entry, attr, None)
         if t:
             try:
-                return datetime(*t[:6], tzinfo=timezone.utc)
+                return datetime(*t[:6], tzinfo=UTC)
             except Exception:
                 pass
     for attr in ("published", "updated"):
         raw = getattr(entry, attr, None)
         if raw:
             try:
-                return parsedate_to_datetime(raw).astimezone(timezone.utc)
+                return parsedate_to_datetime(raw).astimezone(UTC)
             except Exception:
                 pass
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
-def _entry_to_article(entry: feedparser.FeedParserDict, source: SourceConfig) -> Optional[Article]:
+def _entry_to_article(entry: feedparser.FeedParserDict, source: SourceConfig) -> Article | None:
     title = _strip_html(getattr(entry, "title", "")).strip()
     url = getattr(entry, "link", "").strip()
     if not title or not url:
@@ -100,7 +98,7 @@ async def fetch_feeds(sources: list[SourceConfig]) -> FetchResult:
     source_errors: list[tuple[str, str]] = []
     succeeded = 0
 
-    for source, result in zip(sources, results):
+    for source, result in zip(sources, results, strict=False):
         if isinstance(result, Exception):
             msg = str(result)
             logger.warning("fetch failed: source=%s error=%s", source.name, msg)

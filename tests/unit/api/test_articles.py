@@ -45,36 +45,28 @@ async def test_articles_with_limit(api_client: AsyncClient) -> None:
     assert data["limit"] == 10
 
 
-async def test_articles_with_min_score_filter(
-    api_client: AsyncClient, mock_repo
-) -> None:
+async def test_articles_with_min_score_filter(api_client: AsyncClient, mock_repo) -> None:
     response = await api_client.get("/articles?min_score=0.3")
     assert response.status_code == 200
     _, kwargs = mock_repo.get_articles_filtered.call_args
     assert kwargs["min_score"] == 0.3
 
 
-async def test_articles_with_source_filter(
-    api_client: AsyncClient, mock_repo
-) -> None:
+async def test_articles_with_source_filter(api_client: AsyncClient, mock_repo) -> None:
     response = await api_client.get("/articles?source=TechCrunch")
     assert response.status_code == 200
     _, kwargs = mock_repo.get_articles_filtered.call_args
     assert kwargs["source"] == "TechCrunch"
 
 
-async def test_articles_with_topic_filter(
-    api_client: AsyncClient, mock_repo
-) -> None:
+async def test_articles_with_topic_filter(api_client: AsyncClient, mock_repo) -> None:
     response = await api_client.get("/articles?topic=consulting_opportunity")
     assert response.status_code == 200
     _, kwargs = mock_repo.get_articles_filtered.call_args
     assert kwargs["dimension"] == "consulting_opportunity"
 
 
-async def test_articles_invalid_topic_ignored(
-    api_client: AsyncClient, mock_repo
-) -> None:
+async def test_articles_invalid_topic_ignored(api_client: AsyncClient, mock_repo) -> None:
     response = await api_client.get("/articles?topic=nonexistent_dimension")
     assert response.status_code == 200
     _, kwargs = mock_repo.get_articles_filtered.call_args

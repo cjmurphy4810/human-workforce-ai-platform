@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Request
@@ -33,7 +33,7 @@ async def health(
 
     return HealthResponse(
         status=status,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         database="connected" if db_ok else "disconnected",
         sources_configured=len(config.sources),
     )

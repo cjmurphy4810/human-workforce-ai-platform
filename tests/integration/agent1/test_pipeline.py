@@ -1,12 +1,12 @@
 """Integration test: full pipeline with mocked RSS and in-memory SQLite."""
+
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
-
 from config.loader import AppConfig, OutputConfig, ScoringConfig, SourceConfig
 from models.article import Article
 from pipeline.brief_builder import build_brief
@@ -22,7 +22,7 @@ def _make_article(i: int) -> Article:
         url=f"https://example.com/article-{i}",
         source_name="Test Feed",
         source_weight=0.9,
-        published_at=datetime.now(timezone.utc),
+        published_at=datetime.now(UTC),
         summary=f"This article covers AI governance, strategy, and enterprise ROI number {i}.",
     )
 
@@ -112,7 +112,7 @@ async def test_brief_written_to_disk(tmp_path: Path, repo: ArticleRepository) ->
     recent = await repo.get_recent_articles(since_days=7)
     md = build_brief(recent, cfg.output)
 
-    date_label = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date_label = datetime.now(UTC).strftime("%Y-%m-%d")
     out_dir = tmp_path / date_label
     out_dir.mkdir(parents=True)
     brief_path = out_dir / "executive_brief.md"

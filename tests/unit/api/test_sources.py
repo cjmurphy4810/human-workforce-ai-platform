@@ -14,9 +14,7 @@ async def test_sources_schema(api_client: AsyncClient) -> None:
     assert "total" in data
 
 
-async def test_sources_count_matches_config(
-    api_client: AsyncClient, test_config
-) -> None:
+async def test_sources_count_matches_config(api_client: AsyncClient, test_config) -> None:
     data = (await api_client.get("/sources")).json()
     assert data["total"] == len(test_config.sources)
     assert len(data["items"]) == len(test_config.sources)

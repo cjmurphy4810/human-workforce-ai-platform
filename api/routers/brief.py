@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -47,8 +46,6 @@ def _find_latest_brief(output_root: Path) -> tuple[Path | None, str]:
     if not output_root.exists():
         return None, ""
 
-    # Today's brief first, then most recent
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     candidates = sorted(output_root.glob("????-??-??"), reverse=True)
 
     for date_dir in candidates:

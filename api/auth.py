@@ -15,6 +15,7 @@ Currently a no-op. To enable API key authentication:
 To enable JWT bearer authentication, replace this module with a proper
 JWT decode flow (e.g. python-jose) and adjust the `verify_api_key` signature.
 """
+
 from __future__ import annotations
 
 from fastapi import Header

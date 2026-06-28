@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 
@@ -23,7 +23,7 @@ _DIMENSION_LABELS = {
 }
 
 
-def _to_article_response(sa) -> Optional[ArticleResponse]:  # type: ignore[type-arg]
+def _to_article_response(sa) -> ArticleResponse | None:  # type: ignore[type-arg]
     if sa is None:
         return None
     a = sa.article

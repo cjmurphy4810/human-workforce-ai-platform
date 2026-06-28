@@ -5,6 +5,7 @@ Usage:
     python main.py
     python main.py --config config/config.yaml --log-level DEBUG
 """
+
 from __future__ import annotations
 
 import argparse
@@ -80,11 +81,13 @@ async def _run(args: argparse.Namespace) -> None:
 
     sep = "─" * 56
     print(f"\n{sep}")
-    print(f"  Executive Brief ready")
+    print("  Executive Brief ready")
     print(f"  {result.brief_path}")
-    print(f"  fetched={result.articles_fetched}  new={result.articles_new}  "
-          f"sources={result.sources_succeeded}/{result.sources_attempted}  "
-          f"time={result.duration_seconds}s")
+    print(
+        f"  fetched={result.articles_fetched}  new={result.articles_new}  "
+        f"sources={result.sources_succeeded}/{result.sources_attempted}  "
+        f"time={result.duration_seconds}s"
+    )
     print(f"{sep}\n")
 
 

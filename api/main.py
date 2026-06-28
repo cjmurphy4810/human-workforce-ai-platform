@@ -7,13 +7,15 @@ Docs:
     http://localhost:8000/docs   (Swagger UI)
     http://localhost:8000/redoc  (ReDoc)
 """
+
 from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -84,10 +86,14 @@ def create_app(
     is used.  Pass an explicit lifespan (or omit for tests that override
     dependencies without DB startup).
     """
-    resolved_lifespan = lifespan if lifespan is not None else _make_lifespan(
-        config_path=config_path,
-        db_url=db_url,
-        agent1_dir=agent1_dir,
+    resolved_lifespan = (
+        lifespan
+        if lifespan is not None
+        else _make_lifespan(
+            config_path=config_path,
+            db_url=db_url,
+            agent1_dir=agent1_dir,
+        )
     )
 
     application = FastAPI(
@@ -116,7 +122,15 @@ def create_app(
 
 
 def _register_routers(application: FastAPI) -> None:
-    from api.routers import articles, brief, health, pipeline, sources, stats, topics  # noqa: PLC0415
+    from api.routers import (  # noqa: PLC0415
+        articles,
+        brief,
+        health,
+        pipeline,
+        sources,
+        stats,
+        topics,
+    )
 
     application.include_router(health.router)
     application.include_router(stats.router)

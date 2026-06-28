@@ -3,12 +3,13 @@
 Tests use an in-memory mock repo and a fixed test config.
 No database, no network access, no lifespan startup.
 """
+
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -21,8 +22,8 @@ if str(_AGENT1) not in sys.path:
 from config.loader import AppConfig, OutputConfig, ScoringConfig, SourceConfig
 from models.article import Article, ArticleScore, ScoredArticle
 
-
 # ── shared domain helpers ─────────────────────────────────────────────────────
+
 
 def make_article(n: int = 0) -> Article:
     return Article(
@@ -30,8 +31,8 @@ def make_article(n: int = 0) -> Article:
         url=f"https://example.com/article-{n}",
         source_name="Test Source",
         source_weight=0.9,
-        published_at=datetime(2026, 6, 28, tzinfo=timezone.utc),
-        fetched_at=datetime(2026, 6, 28, 12, 0, tzinfo=timezone.utc),
+        published_at=datetime(2026, 6, 28, tzinfo=UTC),
+        fetched_at=datetime(2026, 6, 28, 12, 0, tzinfo=UTC),
         summary=f"Summary of article {n} covering AI governance and enterprise strategy.",
         content_hash=f"hash{n:04d}",
     )
@@ -53,6 +54,7 @@ def make_scored(n: int = 0, overall: float = 0.50) -> ScoredArticle:
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
+
 
 @pytest.fixture
 def test_config() -> AppConfig:
@@ -79,7 +81,7 @@ def mock_repo() -> AsyncMock:
 
     repo.count_all.return_value = 150
     repo.count_since.return_value = 50
-    repo.get_latest_fetch_time.return_value = datetime(2026, 6, 28, 12, 0, tzinfo=timezone.utc)
+    repo.get_latest_fetch_time.return_value = datetime(2026, 6, 28, 12, 0, tzinfo=UTC)
     repo.get_recent_articles.return_value = scored_articles
     repo.get_articles_filtered.return_value = (scored_articles, 5)
     repo.get_source_stats.return_value = [
@@ -87,7 +89,7 @@ def mock_repo() -> AsyncMock:
             "source_name": "Test Source",
             "article_count": 30,
             "avg_score": 0.18,
-            "latest_published": datetime(2026, 6, 28, tzinfo=timezone.utc),
+            "latest_published": datetime(2026, 6, 28, tzinfo=UTC),
         }
     ]
     repo.get_dimension_averages.return_value = {

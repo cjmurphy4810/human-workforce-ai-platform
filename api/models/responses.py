@@ -1,13 +1,14 @@
 """Pydantic response models for the Human Workforce AI API."""
+
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
 # ── Health ──────────────────────────────────────────────────────────────────
+
 
 class HealthResponse(BaseModel):
     status: Literal["healthy", "degraded", "unhealthy"]
@@ -16,26 +17,32 @@ class HealthResponse(BaseModel):
     database: Literal["connected", "disconnected"]
     sources_configured: int
 
-    model_config = {"json_schema_extra": {"example": {
-        "status": "healthy",
-        "version": "1.0.0",
-        "timestamp": "2026-06-28T14:00:00Z",
-        "database": "connected",
-        "sources_configured": 9,
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "status": "healthy",
+                "version": "1.0.0",
+                "timestamp": "2026-06-28T14:00:00Z",
+                "database": "connected",
+                "sources_configured": 9,
+            }
+        }
+    }
 
 
 # ── Stats ────────────────────────────────────────────────────────────────────
+
 
 class StatsResponse(BaseModel):
     total_articles: int
     articles_last_7_days: int
     articles_last_30_days: int
     sources_configured: int
-    last_fetch: Optional[datetime]
+    last_fetch: datetime | None
 
 
 # ── Brief ────────────────────────────────────────────────────────────────────
+
 
 class BriefResponse(BaseModel):
     date: str = Field(description="YYYY-MM-DD of the brief")
@@ -46,6 +53,7 @@ class BriefResponse(BaseModel):
 
 
 # ── Pipeline run ─────────────────────────────────────────────────────────────
+
 
 class SourceError(BaseModel):
     source: str
@@ -67,6 +75,7 @@ class RunResponse(BaseModel):
 
 
 # ── Articles ─────────────────────────────────────────────────────────────────
+
 
 class ArticleScoreResponse(BaseModel):
     business_impact: float
@@ -96,12 +105,13 @@ class ArticleListResponse(BaseModel):
 
 # ── Topics ───────────────────────────────────────────────────────────────────
 
+
 class TopicResponse(BaseModel):
     id: str = Field(description="Scoring dimension key")
     label: str
     article_count: int
     avg_score: float
-    top_article: Optional[ArticleResponse]
+    top_article: ArticleResponse | None
 
 
 class TopicListResponse(BaseModel):
@@ -111,13 +121,14 @@ class TopicListResponse(BaseModel):
 
 # ── Sources ──────────────────────────────────────────────────────────────────
 
+
 class SourceResponse(BaseModel):
     name: str
     url: str
     weight: float
     article_count: int = 0
     avg_score: float = 0.0
-    latest_article_date: Optional[datetime] = None
+    latest_article_date: datetime | None = None
 
 
 class SourceListResponse(BaseModel):

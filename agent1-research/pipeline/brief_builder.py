@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from config.loader import OutputConfig
 from models.article import ScoredArticle
@@ -55,10 +55,7 @@ def _podcast_row(rank: int, sa: ScoredArticle) -> str:
 def _citation_row(rank: int, sa: ScoredArticle) -> str:
     a = sa.article
     pub = _format_date(a.published_at)
-    return (
-        f"| {rank} | [{a.title}]({a.url}) | {a.source_name} | {pub} | "
-        f"{sa.score.overall:.2f} |"
-    )
+    return f"| {rank} | [{a.title}]({a.url}) | {a.source_name} | {pub} | {sa.score.overall:.2f} |"
 
 
 def _executive_summary(articles: list[ScoredArticle], cfg: OutputConfig, date_label: str) -> str:
@@ -80,14 +77,14 @@ def _executive_summary(articles: list[ScoredArticle], cfg: OutputConfig, date_la
 
 def build_brief(articles: list[ScoredArticle], cfg: OutputConfig) -> str:
     if not articles:
-        date_label = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        date_label = datetime.now(UTC).strftime("%Y-%m-%d")
         return (
             f"# Human Workforce AI — Executive Brief\n\n"
             f"**Date:** {date_label}\n\n"
             f"No articles found for this period.\n"
         )
 
-    date_label = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date_label = datetime.now(UTC).strftime("%Y-%m-%d")
     by_overall = sorted(articles, key=lambda sa: sa.score.overall, reverse=True)
     by_consulting = sorted(articles, key=lambda sa: sa.score.consulting_opportunity, reverse=True)
     by_podcast = sorted(articles, key=lambda sa: sa.score.podcast_potential, reverse=True)
@@ -100,8 +97,10 @@ def build_brief(articles: list[ScoredArticle], cfg: OutputConfig) -> str:
     lines: list[str] = []
 
     lines.append("# Human Workforce AI — Executive Brief")
-    lines.append(f"\n**Date:** {date_label} | **Articles:** {len(articles)} | "
-                 f"**Sources:** {len({sa.article.source_name for sa in articles})}\n")
+    lines.append(
+        f"\n**Date:** {date_label} | **Articles:** {len(articles)} | "
+        f"**Sources:** {len({sa.article.source_name for sa in articles})}\n"
+    )
     lines.append("---\n")
 
     lines.append("## Executive Summary\n")

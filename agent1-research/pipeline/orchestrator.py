@@ -3,12 +3,13 @@
 Called by both the CLI (main.py) and the FastAPI service (POST /run).
 Business logic stays here; callers only provide config, repo, and output path.
 """
+
 from __future__ import annotations
 
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from config.loader import AppConfig
@@ -32,7 +33,7 @@ class RunResult:
     save_errors: list[str] = field(default_factory=list)
     brief_path: str = ""
     duration_seconds: float = 0.0
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 async def orchestrate_run(
@@ -49,9 +50,7 @@ async def orchestrate_run(
 
     # 2. Hash + dedup
     stamp_hashes(fetch_result.articles)
-    existing_hashes = await repo.get_existing_hashes(
-        since_days=config.output.lookback_days * 4
-    )
+    existing_hashes = await repo.get_existing_hashes(since_days=config.output.lookback_days * 4)
     new_articles = filter_new(fetch_result.articles, existing_hashes)
     logger.info(
         "dedup: total=%d new=%d skipped=%d",
@@ -79,7 +78,7 @@ async def orchestrate_run(
 
     # 5. Generate + write brief
     brief_md = build_brief(brief_articles, config.output)
-    date_label = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date_label = datetime.now(UTC).strftime("%Y-%m-%d")
     out_dir = output_root / date_label
     out_dir.mkdir(parents=True, exist_ok=True)
     brief_path = out_dir / "executive_brief.md"

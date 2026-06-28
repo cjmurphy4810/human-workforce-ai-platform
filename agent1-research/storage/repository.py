@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
-from typing import Optional
-
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from datetime import UTC, datetime, timedelta
 
 from models.article import Article, ArticleScore, ScoredArticle
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from storage.orm import ArticleORM
 
 logger = logging.getLogger(__name__)
@@ -22,7 +20,7 @@ _DIMENSION_COLUMNS: dict[str, object] = {
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _orm_to_scored(row: ArticleORM) -> ScoredArticle:
@@ -112,26 +110,22 @@ class ArticleRepository:
         cutoff = _utcnow() - timedelta(days=days)
         async with self._factory() as session:
             result = await session.execute(
-                select(func.count())
-                .select_from(ArticleORM)
-                .where(ArticleORM.fetched_at >= cutoff)
+                select(func.count()).select_from(ArticleORM).where(ArticleORM.fetched_at >= cutoff)
             )
             return result.scalar_one() or 0
 
-    async def get_latest_fetch_time(self) -> Optional[datetime]:
+    async def get_latest_fetch_time(self) -> datetime | None:
         async with self._factory() as session:
-            result = await session.execute(
-                select(func.max(ArticleORM.fetched_at))
-            )
+            result = await session.execute(select(func.max(ArticleORM.fetched_at)))
             return result.scalar_one_or_none()
 
     async def get_articles_filtered(
         self,
         *,
-        date: Optional[str] = None,
-        source: Optional[str] = None,
+        date: str | None = None,
+        source: str | None = None,
         min_score: float = 0.0,
-        dimension: Optional[str] = None,
+        dimension: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[ScoredArticle], int]:
@@ -143,7 +137,7 @@ class ArticleRepository:
             if date:
                 try:
                     day = datetime.strptime(date, "%Y-%m-%d")
-                    day_start = day.replace(tzinfo=timezone.utc)
+                    day_start = day.replace(tzinfo=UTC)
                     day_end = day_start + timedelta(days=1)
                     stmt = stmt.where(
                         ArticleORM.published_at >= day_start,
@@ -218,18 +212,37 @@ class ArticleRepository:
                     func.avg(ArticleORM.score_consulting_opportunity).label("co"),
                     func.avg(ArticleORM.score_podcast_potential).label("pp"),
                     func.avg(ArticleORM.score_urgency).label("ur"),
-                )
-                .where(ArticleORM.fetched_at >= cutoff)
+                ).where(ArticleORM.fetched_at >= cutoff)
             )
             row = agg.one()
             n = row.n or 0
 
             dimensions: dict[str, dict] = {
-                "business_impact": {"label": "Business Impact", "avg": round(float(row.bi or 0), 4), "article_count": n},
-                "executive_interest": {"label": "Executive Interest", "avg": round(float(row.ei or 0), 4), "article_count": n},
-                "consulting_opportunity": {"label": "Consulting Opportunity", "avg": round(float(row.co or 0), 4), "article_count": n},
-                "podcast_potential": {"label": "Podcast Potential", "avg": round(float(row.pp or 0), 4), "article_count": n},
-                "urgency": {"label": "Urgency", "avg": round(float(row.ur or 0), 4), "article_count": n},
+                "business_impact": {
+                    "label": "Business Impact",
+                    "avg": round(float(row.bi or 0), 4),
+                    "article_count": n,
+                },
+                "executive_interest": {
+                    "label": "Executive Interest",
+                    "avg": round(float(row.ei or 0), 4),
+                    "article_count": n,
+                },
+                "consulting_opportunity": {
+                    "label": "Consulting Opportunity",
+                    "avg": round(float(row.co or 0), 4),
+                    "article_count": n,
+                },
+                "podcast_potential": {
+                    "label": "Podcast Potential",
+                    "avg": round(float(row.pp or 0), 4),
+                    "article_count": n,
+                },
+                "urgency": {
+                    "label": "Urgency",
+                    "avg": round(float(row.ur or 0), 4),
+                    "article_count": n,
+                },
             }
 
             # Top article per dimension
@@ -241,8 +254,6 @@ class ArticleRepository:
                     .limit(1)
                 )
                 top_row = top.scalar_one_or_none()
-                dimensions[dim_key]["top_article"] = (
-                    _orm_to_scored(top_row) if top_row else None
-                )
+                dimensions[dim_key]["top_article"] = _orm_to_scored(top_row) if top_row else None
 
         return dimensions

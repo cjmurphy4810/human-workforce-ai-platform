@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from pydantic import BaseModel, Field
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class Article(BaseModel):
@@ -33,4 +32,4 @@ class ArticleScore(BaseModel):
 class ScoredArticle(BaseModel):
     article: Article
     score: ArticleScore
-    db_id: Optional[int] = None
+    db_id: int | None = None

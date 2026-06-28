@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 from httpx import AsyncClient
 
 
@@ -32,9 +31,10 @@ async def test_health_db_connected_when_repo_works(api_client: AsyncClient) -> N
 async def test_health_db_disconnected_when_repo_raises(
     mock_repo, test_config, tmp_agent1_dir
 ) -> None:
+    from httpx import ASGITransport, AsyncClient
+
     from api.dependencies import get_agent1_dir, get_config, get_repo
     from api.main import create_app
-    from httpx import ASGITransport, AsyncClient
     from tests.unit.api.conftest import _no_lifespan
 
     mock_repo.count_all.side_effect = Exception("db error")
