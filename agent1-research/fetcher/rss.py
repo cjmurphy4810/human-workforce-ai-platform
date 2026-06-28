@@ -78,16 +78,40 @@ async def fetch_source(source: SourceConfig) -> list[Article]:
     return articles
 
 
-async def fetch_feeds(sources: list[SourceConfig]) -> list[Article]:
+class FetchResult:
+    __slots__ = ("articles", "sources_succeeded", "source_errors")
+
+    def __init__(
+        self,
+        articles: list[Article],
+        sources_succeeded: int,
+        source_errors: list[tuple[str, str]],
+    ) -> None:
+        self.articles = articles
+        self.sources_succeeded = sources_succeeded
+        self.source_errors = source_errors  # [(source_name, error_msg), ...]
+
+
+async def fetch_feeds(sources: list[SourceConfig]) -> FetchResult:
     tasks = [fetch_source(s) for s in sources]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
     articles: list[Article] = []
+    source_errors: list[tuple[str, str]] = []
+    succeeded = 0
+
     for source, result in zip(sources, results):
         if isinstance(result, Exception):
-            logger.warning("fetch failed: source=%s error=%s", source.name, result)
+            msg = str(result)
+            logger.warning("fetch failed: source=%s error=%s", source.name, msg)
+            source_errors.append((source.name, msg))
         else:
             logger.info("fetched: source=%s count=%d", source.name, len(result))
             articles.extend(result)
+            succeeded += 1
 
-    return articles
+    return FetchResult(
+        articles=articles,
+        sources_succeeded=succeeded,
+        source_errors=source_errors,
+    )

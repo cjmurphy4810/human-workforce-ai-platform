@@ -140,7 +140,9 @@ async def test_fetch_failure_does_not_crash_pipeline() -> None:
         return good_articles
 
     with patch("fetcher.rss.fetch_source", side_effect=_mock_fetch_source):
-        articles = await fetch_feeds(sources)
+        result = await fetch_feeds(sources)
 
-    assert len(articles) == 2
-    assert all(a.source_name == "Test Feed" for a in articles)
+    assert len(result.articles) == 2
+    assert result.sources_succeeded == 1
+    assert len(result.source_errors) == 1
+    assert result.source_errors[0][0] == "Bad Source"
