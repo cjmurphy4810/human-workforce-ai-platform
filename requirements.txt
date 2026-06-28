@@ -28,6 +28,13 @@ python-multipart>=0.0.9
 python-dotenv>=1.0.0
 python-json-logger>=2.0.7
 
+# ── Agent 1 — Research ────────────────────────────────────────────────────────
+feedparser>=6.0.11              # RSS / Atom feed parsing
+beautifulsoup4>=4.12.0          # HTML scraping for website sources
+lxml>=5.2.0                     # Fast HTML/XML parser backend for bs4
+pyyaml>=6.0.1                   # YAML config loading
+tenacity>=8.3.0                 # Retry logic with exponential backoff
+
 # ── Dev / Testing ─────────────────────────────────────────────────────────────
 pytest>=8.2.0
 pytest-asyncio>=0.23.0

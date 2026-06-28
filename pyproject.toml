@@ -67,7 +67,7 @@ exclude = ["dashboard/", "docs/"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
-addopts = "--cov=. --cov-report=term-missing --cov-report=html --cov-omit=tests/*,*/migrations/*"
+addopts = "--cov=. --cov-report=term-missing --cov-report=html"
 
 [tool.coverage.run]
 omit = ["tests/*", "*/migrations/*", "dashboard/*"]

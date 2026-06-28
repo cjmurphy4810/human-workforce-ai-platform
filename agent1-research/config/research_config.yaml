@@ -1,0 +1,365 @@
+research:
+
+  schedule:
+    interval_hours: 6
+    timezone: "America/New_York"
+    run_on_startup: true
+
+  fetching:
+    request_timeout_seconds: 30
+    max_retries: 3
+    retry_delay_seconds: 2.0
+    articles_per_source: 20
+    lookback_days: 7
+
+  scoring:
+    weights:
+      relevance:            0.20
+      business_impact:      0.18
+      consulting_potential: 0.15
+      podcast_potential:    0.10
+      executive_interest:   0.15
+      confidence:           0.05
+      novelty:              0.07
+      urgency:              0.10
+    thresholds:
+      minimum_overall:   0.30
+      high_priority:     0.60
+      podcast_minimum:   0.35
+      consulting_minimum: 0.35
+
+  outputs:
+    archive_dir: "./data/archives"
+    max_articles_per_brief: 25
+    max_podcast_ideas: 5
+    max_consulting_opportunities: 8
+    max_linkedin_topics: 10
+    max_newsletter_ideas: 8
+
+  # ── Topic Definitions ─────────────────────────────────────────────────────
+  topics:
+
+    - id: ai
+      label: "AI"
+      weight: 1.0
+      keywords:
+        - artificial intelligence
+        - machine learning
+        - deep learning
+        - foundation model
+        - large language model
+        - LLM
+        - generative AI
+        - gen AI
+        - neural network
+        - AI model
+
+    - id: agentic_ai
+      label: "Agentic AI"
+      weight: 1.0
+      keywords:
+        - agentic AI
+        - AI agent
+        - autonomous AI
+        - multi-agent
+        - agent framework
+        - agent orchestration
+        - tool use
+        - computer use
+        - AI automation
+        - autonomous system
+        - agentic
+
+    - id: business_continuity
+      label: "Business Continuity"
+      weight: 0.9
+      keywords:
+        - business continuity
+        - disaster recovery
+        - resilience
+        - failover
+        - recovery time
+        - RTO
+        - RPO
+        - operational continuity
+        - high availability
+
+    - id: operational_risk
+      label: "Operational Risk"
+      weight: 0.9
+      keywords:
+        - operational risk
+        - risk management
+        - risk framework
+        - risk assessment
+        - risk mitigation
+        - enterprise risk
+        - risk register
+        - internal controls
+
+    - id: enterprise_resilience
+      label: "Enterprise Resilience"
+      weight: 0.9
+      keywords:
+        - enterprise resilience
+        - organizational resilience
+        - crisis management
+        - stress testing
+        - scenario planning
+        - supply chain resilience
+
+    - id: ai_governance
+      label: "AI Governance"
+      weight: 1.0
+      keywords:
+        - AI governance
+        - responsible AI
+        - AI ethics
+        - AI regulation
+        - EU AI Act
+        - AI compliance
+        - AI policy
+        - algorithmic accountability
+        - AI fairness
+        - model governance
+        - AI risk management
+        - AI Act
+        - NIST AI
+
+    - id: cybersecurity
+      label: "Cybersecurity"
+      weight: 0.9
+      keywords:
+        - cybersecurity
+        - cyber threat
+        - data breach
+        - ransomware
+        - vulnerability
+        - zero-day
+        - CISO
+        - security operations
+        - threat intelligence
+        - security posture
+        - SOC
+
+    - id: workflow_automation
+      label: "Workflow Automation"
+      weight: 0.9
+      keywords:
+        - workflow automation
+        - process automation
+        - RPA
+        - robotic process automation
+        - intelligent automation
+        - business process management
+        - BPM
+        - no-code
+        - low-code
+        - digital worker
+
+    - id: appian
+      label: "Appian"
+      weight: 1.0
+      keywords:
+        - Appian
+        - Appian platform
+        - Appian AI
+        - Appian process automation
+        - SAIL
+
+    - id: openai
+      label: "OpenAI"
+      weight: 1.0
+      keywords:
+        - OpenAI
+        - GPT-4
+        - GPT-5
+        - ChatGPT
+        - Sora
+        - OpenAI API
+        - o1
+        - o3
+        - o4
+
+    - id: anthropic
+      label: "Anthropic"
+      weight: 1.0
+      keywords:
+        - Anthropic
+        - Claude
+        - Constitutional AI
+        - Claude Code
+
+    - id: google_ai
+      label: "Google AI"
+      weight: 1.0
+      keywords:
+        - Google AI
+        - Gemini
+        - DeepMind
+        - Google DeepMind
+        - Vertex AI
+        - Google Cloud AI
+
+    - id: aws_ai
+      label: "AWS AI"
+      weight: 0.9
+      keywords:
+        - AWS AI
+        - Amazon Bedrock
+        - Amazon SageMaker
+        - AWS machine learning
+        - AWS ML
+
+    - id: azure_ai
+      label: "Azure AI"
+      weight: 0.9
+      keywords:
+        - Azure AI
+        - Microsoft Copilot
+        - Azure OpenAI
+        - Microsoft AI
+        - Azure Machine Learning
+        - Copilot Studio
+
+    - id: banking
+      label: "Banking & Finance"
+      weight: 0.8
+      keywords:
+        - banking
+        - financial services
+        - fintech
+        - bank AI
+        - financial institution
+        - credit risk
+        - fraud detection
+        - Basel
+
+    - id: technology_risk
+      label: "Technology Risk"
+      weight: 0.9
+      keywords:
+        - technology risk
+        - tech risk
+        - IT risk
+        - model risk
+        - third-party risk
+        - vendor risk
+        - technology governance
+        - system failure
+
+    - id: digital_transformation
+      label: "Digital Transformation"
+      weight: 0.9
+      keywords:
+        - digital transformation
+        - digitization
+        - digital strategy
+        - digital modernization
+        - legacy modernization
+        - cloud migration
+        - technology adoption
+        - digital innovation
+
+  # ── Source Definitions ────────────────────────────────────────────────────
+  sources:
+
+    - name: "OpenAI Blog"
+      url: "https://openai.com/blog/rss.xml"
+      type: rss
+      topics: [ai, openai, agentic_ai]
+      weight: 0.95
+      confidence_base: 0.95
+      enabled: true
+
+    - name: "Anthropic News"
+      url: "https://www.anthropic.com/news"
+      type: website
+      topics: [ai, anthropic, ai_governance]
+      weight: 1.0
+      confidence_base: 0.98
+      enabled: true
+      selectors:
+        article_links: "a[href*='/news/']"
+        title: "h1"
+        content: "main"
+
+    - name: "Google AI Blog"
+      url: "https://blog.google/technology/ai/rss/"
+      type: rss
+      topics: [ai, google_ai, agentic_ai]
+      weight: 0.90
+      confidence_base: 0.92
+      enabled: true
+
+    - name: "AWS Machine Learning Blog"
+      url: "https://aws.amazon.com/blogs/machine-learning/feed/"
+      type: rss
+      topics: [ai, aws_ai, workflow_automation]
+      weight: 0.85
+      confidence_base: 0.90
+      enabled: true
+
+    - name: "Microsoft AI Blog"
+      url: "https://blogs.microsoft.com/ai/feed/"
+      type: rss
+      topics: [ai, azure_ai, agentic_ai, digital_transformation]
+      weight: 0.85
+      confidence_base: 0.90
+      enabled: true
+
+    - name: "Appian Blog"
+      url: "https://appian.com/blog/acp/rss.xml"
+      type: rss
+      topics: [appian, workflow_automation, ai_governance, agentic_ai]
+      weight: 0.90
+      confidence_base: 0.88
+      enabled: true
+
+    - name: "MIT Technology Review"
+      url: "https://www.technologyreview.com/feed/"
+      type: rss
+      topics: [ai, digital_transformation, technology_risk, ai_governance]
+      weight: 0.92
+      confidence_base: 0.90
+      enabled: true
+
+    - name: "Harvard Business Review Technology"
+      url: "https://hbr.org/technology/rss"
+      type: rss
+      topics: [digital_transformation, ai, enterprise_resilience]
+      weight: 0.88
+      confidence_base: 0.88
+      enabled: true
+
+    - name: "NIST AI RMF"
+      url: "https://www.nist.gov/artificial-intelligence"
+      type: website
+      topics: [ai_governance, operational_risk, technology_risk]
+      weight: 0.95
+      confidence_base: 0.98
+      enabled: true
+      selectors:
+        article_links: "a[href*='/artificial-intelligence']"
+        title: "h1"
+        content: ".field-item, main"
+
+    - name: "OWASP AI Security"
+      url: "https://owasp.org/www-project-machine-learning-security-top-10/"
+      type: website
+      topics: [cybersecurity, ai_governance, technology_risk]
+      weight: 0.88
+      confidence_base: 0.92
+      enabled: true
+      selectors:
+        article_links: "a[href*='owasp.org']"
+        title: "h1, h2"
+        content: ".markdown-body, main"
+
+    - name: "The Human Workforce"
+      url: "https://thehumanworkforce.com/feed"
+      type: rss
+      topics: [ai, digital_transformation, workflow_automation, agentic_ai]
+      weight: 1.0
+      confidence_base: 0.95
+      enabled: true

@@ -1,0 +1,51 @@
+sources:
+  - name: MIT Technology Review
+    url: https://www.technologyreview.com/feed/
+    weight: 0.85
+
+  - name: Harvard Business Review
+    url: https://feeds.hbr.org/harvardbusiness
+    weight: 0.80
+
+  - name: VentureBeat AI
+    url: https://venturebeat.com/category/ai/feed/
+    weight: 0.90
+
+  - name: TechCrunch AI
+    url: https://techcrunch.com/category/artificial-intelligence/feed/
+    weight: 0.85
+
+  - name: The Verge AI
+    url: https://www.theverge.com/rss/ai-artificial-intelligence/index.xml
+    weight: 0.80
+
+  - name: Wired AI
+    url: https://www.wired.com/feed/category/artificial-intelligence/latest/rss
+    weight: 0.80
+
+  - name: OpenAI Blog
+    url: https://openai.com/blog/rss.xml
+    weight: 1.00
+
+  - name: Google AI Blog
+    url: https://blog.research.google/feeds/posts/default
+    weight: 0.95
+
+  - name: Appian Blog
+    url: https://appian.com/blog/rss
+    weight: 0.85
+
+scoring:
+  weights:
+    business_impact: 0.30
+    executive_interest: 0.20
+    consulting_opportunity: 0.25
+    podcast_potential: 0.15
+    urgency: 0.10
+
+output:
+  directory: output
+  lookback_days: 7
+  top_stories: 10
+  top_consulting: 5
+  top_podcast: 5
