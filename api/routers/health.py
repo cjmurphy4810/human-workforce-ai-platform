@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Request
 
@@ -19,9 +20,9 @@ router = APIRouter(tags=["System"])
 )
 async def health(
     request: Request,
-    config=Depends(get_config),
+    config: Any = Depends(get_config),
     agent1_dir: Path = Depends(get_agent1_dir),
-    repo=Depends(get_repo),
+    repo: Any = Depends(get_repo),
 ) -> HealthResponse:
     db_ok = True
     try:
@@ -29,7 +30,7 @@ async def health(
     except Exception:
         db_ok = False
 
-    status = "healthy" if db_ok else "degraded"
+    status: Literal["healthy", "degraded", "unhealthy"] = "healthy" if db_ok else "degraded"
 
     return HealthResponse(
         status=status,

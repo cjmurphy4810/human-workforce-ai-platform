@@ -7,6 +7,7 @@ Each function is injected via `Depends()`.  Tests replace them via
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any, cast
 
 from fastapi import Request
 
@@ -14,18 +15,18 @@ from fastapi import Request
 # to avoid circular import issues during module load.
 
 
-def get_repo(request: Request):  # type: ignore[return]
+def get_repo(request: Request) -> Any:
     """Return a live ArticleRepository backed by the shared session factory."""
     from storage.repository import ArticleRepository  # noqa: PLC0415
 
     return ArticleRepository(request.app.state.session_factory)
 
 
-def get_config(request: Request):  # type: ignore[return]
+def get_config(request: Request) -> Any:
     """Return the loaded AppConfig from app state."""
     return request.app.state.config
 
 
 def get_agent1_dir(request: Request) -> Path:
     """Return the agent1-research directory path from app state."""
-    return request.app.state.agent1_dir
+    return cast(Path, request.app.state.agent1_dir)

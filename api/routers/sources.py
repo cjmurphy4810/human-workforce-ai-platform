@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 
 from api.dependencies import get_config, get_repo
@@ -18,8 +20,8 @@ router = APIRouter(tags=["Sources"])
     ),
 )
 async def list_sources(
-    config=Depends(get_config),
-    repo=Depends(get_repo),
+    config: Any = Depends(get_config),
+    repo: Any = Depends(get_repo),
 ) -> SourceListResponse:
     db_stats = await repo.get_source_stats(since_days=90)
     stats_by_name = {row["source_name"]: row for row in db_stats}

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 
@@ -23,7 +23,7 @@ _DIMENSION_LABELS = {
 }
 
 
-def _to_article_response(sa) -> ArticleResponse | None:  # type: ignore[type-arg]
+def _to_article_response(sa: Any) -> ArticleResponse | None:
     if sa is None:
         return None
     a = sa.article
@@ -57,7 +57,7 @@ def _to_article_response(sa) -> ArticleResponse | None:  # type: ignore[type-arg
     ),
 )
 async def list_topics(
-    repo=Depends(get_repo),
+    repo: Annotated[Any, Depends(get_repo)],
     since_days: Annotated[int, Query(ge=1, le=365, description="Lookback window in days")] = 30,
 ) -> TopicListResponse:
     dim_data = await repo.get_dimension_averages(since_days=since_days)

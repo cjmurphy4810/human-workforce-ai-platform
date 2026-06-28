@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, Depends
 
 from api.dependencies import get_config, get_repo
@@ -15,8 +17,8 @@ router = APIRouter(tags=["Stats"])
     description="Returns total article counts and recent activity metrics.",
 )
 async def stats(
-    config=Depends(get_config),
-    repo=Depends(get_repo),
+    config: Any = Depends(get_config),
+    repo: Any = Depends(get_repo),
 ) -> StatsResponse:
     total, last_7, last_30, last_fetch = await _gather_stats(repo)
     return StatsResponse(
@@ -28,7 +30,7 @@ async def stats(
     )
 
 
-async def _gather_stats(repo) -> tuple:  # type: ignore[type-arg]
+async def _gather_stats(repo: Any) -> tuple[Any, Any, Any, Any]:
     total = await repo.count_all()
     last_7 = await repo.count_since(7)
     last_30 = await repo.count_since(30)

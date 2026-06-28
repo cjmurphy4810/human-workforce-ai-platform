@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -20,7 +21,7 @@ router = APIRouter(tags=["Brief"])
     ),
 )
 async def get_latest_brief(
-    config=Depends(get_config),
+    config: Any = Depends(get_config),
     agent1_dir: Path = Depends(get_agent1_dir),
 ) -> BriefResponse:
     output_root = agent1_dir / config.output.directory

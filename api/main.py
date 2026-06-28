@@ -39,7 +39,7 @@ def _make_lifespan(
     config_path: Path = _DEFAULT_CONFIG,
     db_url: str = _DEFAULT_DB,
     agent1_dir: Path = _AGENT1_DIR,
-):
+) -> Any:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # ── startup ──────────────────────────────────────────────────────

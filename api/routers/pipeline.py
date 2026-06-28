@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pipeline.orchestrator import orchestrate_run
@@ -26,8 +27,8 @@ logger = logging.getLogger(__name__)
     dependencies=[Depends(verify_api_key)],
 )
 async def run_pipeline(
-    config=Depends(get_config),
-    repo=Depends(get_repo),
+    config: Any = Depends(get_config),
+    repo: Any = Depends(get_repo),
     agent1_dir: Path = Depends(get_agent1_dir),
 ) -> RunResponse:
 
