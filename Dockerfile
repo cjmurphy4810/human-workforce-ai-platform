@@ -1,10 +1,11 @@
 # ── Stage 1: Build dashboard ──────────────────────────────────────────────────
 FROM node:20-alpine AS dashboard-builder
-WORKDIR /app/dashboard
-COPY dashboard/package*.json ./
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY dashboard/package.json ./dashboard/
 RUN npm ci --ignore-scripts
-COPY dashboard/ .
-RUN npm run build
+COPY dashboard/ ./dashboard/
+RUN npm run build --workspace=dashboard
 
 # ── Stage 2: Python base ──────────────────────────────────────────────────────
 FROM python:3.12-slim AS python-base
@@ -28,7 +29,7 @@ COPY --from=python-deps /usr/local/lib/python3.12/site-packages /usr/local/lib/p
 COPY --from=python-deps /usr/local/bin /usr/local/bin
 
 # Copy built dashboard assets
-COPY --from=dashboard-builder /app/dashboard/dist /app/static
+COPY --from=dashboard-builder /app/dashboard/dist ./static
 
 # Copy application source
 COPY . .
