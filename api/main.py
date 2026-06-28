@@ -31,6 +31,13 @@ _INTELLIGENCE_DIR = Path(__file__).parent.parent / "intelligence-engine"
 if str(_INTELLIGENCE_DIR) not in sys.path:
     sys.path.insert(0, str(_INTELLIGENCE_DIR))
 
+# Make plugin-sdk importable.
+_PLUGIN_SDK_DIR = Path(__file__).parent.parent / "plugin-sdk"
+if str(_PLUGIN_SDK_DIR) not in sys.path:
+    sys.path.insert(0, str(_PLUGIN_SDK_DIR))
+
+_PLUGINS_DIR = Path(__file__).parent.parent / "plugins"
+
 from config.loader import load_config  # noqa: E402
 from storage.database import build_engine, build_session_factory, init_db  # noqa: E402
 
@@ -44,6 +51,7 @@ def _make_lifespan(
     config_path: Path = _DEFAULT_CONFIG,
     db_url: str = _DEFAULT_DB,
     agent1_dir: Path = _AGENT1_DIR,
+    plugins_dir: Path = _PLUGINS_DIR,
 ) -> Any:
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -65,14 +73,36 @@ def _make_lifespan(
         app.state.agent1_dir = agent1_dir
         app.state.engine = engine
 
+        # ── plugin system ─────────────────────────────────────────────────
+        from plugin_sdk import EventBus, PluginManager, ServiceRegistry  # noqa: PLC0415
+
+        event_bus = EventBus()
+        services = ServiceRegistry()
+        services.register("config", config)
+        services.register("session_factory", session_factory)
+        services.register("agent1_dir", agent1_dir)
+
+        plugin_manager = PluginManager(
+            plugins_dir=plugins_dir,
+            services=services,
+            event_bus=event_bus,
+        )
+        plugin_manager.load_all()
+        await plugin_manager.startup()
+
+        app.state.event_bus = event_bus
+        app.state.plugin_manager = plugin_manager
+
         logger.info(
-            "startup complete: sources=%d db=%s",
+            "startup complete: sources=%d db=%s plugins=%s",
             len(config.sources),
             db_url.split("///")[-1] or ":memory:",
+            plugin_manager.list_loaded(),
         )
         yield
 
         # ── shutdown ─────────────────────────────────────────────────────
+        await plugin_manager.shutdown()
         await engine.dispose()
         logger.info("database engine disposed")
 
@@ -133,6 +163,7 @@ def _register_routers(application: FastAPI) -> None:
         health,
         intelligence,
         pipeline,
+        plugins,
         sources,
         stats,
         topics,
@@ -146,6 +177,7 @@ def _register_routers(application: FastAPI) -> None:
     application.include_router(topics.router)
     application.include_router(sources.router)
     application.include_router(intelligence.router)
+    application.include_router(plugins.router)
 
 
 # Module-level app used by uvicorn

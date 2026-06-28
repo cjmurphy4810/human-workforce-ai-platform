@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pipeline.orchestrator import orchestrate_run
 
 from api.auth import verify_api_key
-from api.dependencies import get_agent1_dir, get_config, get_repo
+from api.dependencies import get_agent1_dir, get_config, get_event_bus, get_repo
 from api.models.responses import RunResponse, SourceError
 
 router = APIRouter(tags=["Pipeline"])
@@ -30,15 +30,36 @@ async def run_pipeline(
     config: Any = Depends(get_config),
     repo: Any = Depends(get_repo),
     agent1_dir: Path = Depends(get_agent1_dir),
+    event_bus: Any = Depends(get_event_bus),
 ) -> RunResponse:
+    from plugin_sdk.events.types import Event, LifecycleEvent  # noqa: PLC0415
 
     output_root = agent1_dir / config.output.directory
+
+    if event_bus is not None:
+        await event_bus.emit(
+            Event(type=LifecycleEvent.BEFORE_RESEARCH, source="pipeline")
+        )
 
     try:
         result = await orchestrate_run(config, repo, output_root)
     except Exception as exc:
         logger.exception("pipeline run failed")
         raise HTTPException(status_code=500, detail=f"Pipeline failed: {exc}") from exc
+
+    if event_bus is not None:
+        await event_bus.emit(
+            Event(
+                type=LifecycleEvent.AFTER_RESEARCH,
+                data={
+                    "articles_fetched": result.articles_fetched,
+                    "articles_new": result.articles_new,
+                    "article_count": result.articles_saved,
+                    "sources_succeeded": result.sources_succeeded,
+                },
+                source="pipeline",
+            )
+        )
 
     return RunResponse(
         status="completed",

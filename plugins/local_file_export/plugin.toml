@@ -1,0 +1,10 @@
+[plugin]
+name = "local_file_export"
+version = "1.0.0"
+description = "Exports the full intelligence report to a local file after each pipeline run"
+author = "Human Workforce AI Team"
+type = "export"
+enabled = true
+
+[config]
+output_dir = "data/exports/local_file_export"

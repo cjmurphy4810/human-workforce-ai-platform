@@ -1,0 +1,12 @@
+[plugin]
+name = "markdown_export"
+version = "1.0.0"
+description = "Exports an intelligence summary to a Markdown file after each pipeline run"
+author = "Human Workforce AI Team"
+type = "export"
+enabled = true
+
+[config]
+output_dir = "data/exports/markdown_export"
+# Maximum number of opportunities and trends to include in the summary
+max_items = 10

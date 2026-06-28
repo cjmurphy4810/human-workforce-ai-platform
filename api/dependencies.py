@@ -30,3 +30,13 @@ def get_config(request: Request) -> Any:
 def get_agent1_dir(request: Request) -> Path:
     """Return the agent1-research directory path from app state."""
     return cast(Path, request.app.state.agent1_dir)
+
+
+def get_event_bus(request: Request) -> Any:
+    """Return the EventBus, or None if the plugin system is not initialised."""
+    return getattr(request.app.state, "event_bus", None)
+
+
+def get_plugin_manager(request: Request) -> Any:
+    """Return the PluginManager, or None if the plugin system is not initialised."""
+    return getattr(request.app.state, "plugin_manager", None)

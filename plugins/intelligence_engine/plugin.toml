@@ -1,0 +1,13 @@
+[plugin]
+name = "intelligence_engine"
+version = "1.0.0"
+description = "Executive Intelligence Engine — opportunities, trends, impact analysis, and recommendations"
+author = "Human Workforce AI Team"
+type = "analytics"
+enabled = true
+
+[config]
+# Days of articles to include in each analysis run (also settable via POST /intelligence/run?lookback_days=)
+lookback_days = 30
+# Maximum clusters per opportunity type
+max_opportunity_clusters = 20

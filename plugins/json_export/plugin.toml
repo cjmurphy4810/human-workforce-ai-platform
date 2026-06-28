@@ -1,0 +1,12 @@
+[plugin]
+name = "json_export"
+version = "1.0.0"
+description = "Exports selected intelligence fields to a compact JSON file after each pipeline run"
+author = "Human Workforce AI Team"
+type = "export"
+enabled = true
+
+[config]
+output_dir = "data/exports/json_export"
+# Which top-level report fields to include in the export
+fields = ["summary", "opportunities", "trends", "recommendations"]

@@ -1,0 +1,23 @@
+# Global plugin configuration.
+#
+# To disable a plugin, set enabled = false under its [<name>] section.
+# To override per-plugin config keys, add a [<name>.config] table.
+#
+# Example — disable markdown export and change json export output dir:
+#   [markdown_export]
+#   enabled = false
+#
+#   [json_export.config]
+#   output_dir = "data/exports/custom-json"
+
+[intelligence_engine]
+enabled = true
+
+[local_file_export]
+enabled = true
+
+[markdown_export]
+enabled = true
+
+[json_export]
+enabled = true

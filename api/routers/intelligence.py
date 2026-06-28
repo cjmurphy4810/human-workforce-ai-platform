@@ -20,7 +20,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from api.dependencies import get_agent1_dir, get_config, get_repo
+from api.dependencies import get_agent1_dir, get_config, get_event_bus, get_repo
 from api.models.intelligence_responses import (
     ConsultingPipelineResponse,
     IntelligenceReportResponse,
@@ -80,6 +80,7 @@ async def run_intelligence(
     config: Any = Depends(get_config),
     repo: Any = Depends(get_repo),
     agent1_dir: Path = Depends(get_agent1_dir),
+    event_bus: Any = Depends(get_event_bus),
     lookback_days: Annotated[int, Query(ge=7, le=365, description="Analysis window in days")] = 30,
 ) -> IntelligenceRunResponse:
     from intelligence.models.intelligence import ArticleData  # noqa: PLC0415
@@ -88,8 +89,14 @@ async def run_intelligence(
         PipelineConfig,
         run_intelligence_pipeline,
     )
+    from plugin_sdk.events.types import Event, LifecycleEvent  # noqa: PLC0415
 
     t0 = time.monotonic()
+
+    if event_bus is not None:
+        await event_bus.emit(
+            Event(type=LifecycleEvent.BEFORE_BRIEF, source="intelligence")
+        )
 
     # Fetch all articles from the research repository
     items, total = await repo.get_articles_filtered(
@@ -122,6 +129,22 @@ async def run_intelligence(
     written = write_outputs(report, output_dir)
 
     elapsed = round(time.monotonic() - t0, 2)
+
+    if event_bus is not None:
+        from dataclasses import asdict  # noqa: PLC0415
+        await event_bus.emit(
+            Event(
+                type=LifecycleEvent.AFTER_BRIEF,
+                data={
+                    "report_dict": asdict(report),
+                    "output_dir": str(output_dir),
+                    "articles_analyzed": len(articles),
+                    "opportunities_detected": len(report.opportunities),
+                    "trends_identified": len(report.trends),
+                },
+                source="intelligence",
+            )
+        )
 
     return IntelligenceRunResponse(
         status="completed",
